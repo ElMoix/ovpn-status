@@ -2,24 +2,18 @@
 
 logf=/var/log/openvpn/openvpn.log
 
-dias=$(date | cut -d " " -f1)
-# Dilluns
-dian=$(date | cut -d " " -f2)
-# 1
-mes=$(date | cut -d " " -f3)
-# Gener
-any=$(date | cut -d " " -f4)
-# 2023
-ds='  '
-# DoubleSpace
-
+dias=$(date | cut -d " " -f1) # Monday
+dian=$(date | cut -d " " -f2) # 1
+mes=$(date | cut -d " " -f3)  # January
+any=$(date | cut -d " " -f4)  # 2023
+ds='  '                       # DoubleSpace
 dateF=$(date +%d-%m-%Y)
 
-
-# Fent aixo, guardarem cada fitxer per mes i any
+# We will generate 12 files by year
 OUTPUT=/tmp/$mes$any.html
 INPUT=/var/www/html/$mes$any.html
 
+# Check if file exists
 if ! [ -f $INPUT ]; then
 	touch $OUTPUT
 	echo "<html>" >> $OUTPUT
@@ -29,7 +23,7 @@ if ! [ -f $INPUT ]; then
 	echo "</style>" >> $OUTPUT
 	echo "</head>" >> $OUTPUT
 	echo "<body>" >> $OUTPUT
-	echo "<h1>DETALLS OPENVPN</h1>" >> $OUTPUT
+	echo "<h1>OPENVPN DETAILS</h1>" >> $OUTPUT
 	echo "</body>" >> $OUTPUT
         echo "</html>" >> $OUTPUT
 fi
@@ -47,17 +41,17 @@ if (( $dian > 0 && $dian < 10));then
 		port=$(echo $line | cut -d ":" -f4 | cut -d " " -f1)
                 users=$(echo $line | cut -d "]" -f1 | cut -d "[" -f2)
                 echo "<p>" >> $OUTPUT
-                echo "<b>L'USUARI $users S'ACABA DE CONNECTAR</b>""<br>" >> $OUTPUT
+                echo "<b>USER: {$users} JUST CONNECTED</b>""<br>" >> $OUTPUT
                 cat $logf | grep $port | grep "Peer Connection Initiated" >> $OUTPUT
                 echo "<br>" >> $OUTPUT
-                echo "<b>L'USUARI $users S'ACABA DE DESCONNECTAR</b>""<br>" >> $OUTPUT
+                echo "<b>USER: {$users} JUST DISCONNECTED</b>""<br>" >> $OUTPUT
                 h=$(cat $logf | grep $port | grep "Inactivity timeout")
                 if ! [[ -z "$h" ]];then
                         cat $logf | grep $port | grep "Inactivity timeout" >> $OUTPUT
                         echo "</p>" >> $OUTPUT
                         echo "<hr>" >> $OUTPUT
                 else
-                        echo "NO s'ha detectat la desconexio per varies connexions continues" >> $OUTPUT
+                        echo "TOO MANY SUCCESSFULLY CONNECTIONS - PEER NOT DISCONNECTED" >> $OUTPUT
 			echo "</p>" >> $OUTPUT
                         echo "<hr>" >> $OUTPUT
                 fi
@@ -68,27 +62,26 @@ else
 		port=$(echo $line | cut -d ":" -f4 | cut -d " " -f1)
                 users=$(echo $line | cut -d "]" -f1 | cut -d "[" -f2)
 		echo "<p>" >> $OUTPUT
-                echo "<b>L'USUARI $users S'ACABA DE CONNECTAR</b>""<br>" >> $OUTPUT
+                echo "<b>USER: {$users} JUST CONNECTED</b>""<br>" >> $OUTPUT
                 cat $logf | grep $port | grep "Peer Connection Initiated" >> $OUTPUT
                 echo "<br>" >> $OUTPUT
-                echo "<b>L'USUARI $users S'ACABA DE DESCONNECTAR</b>""<br>" >> $OUTPUT
+                echo "<b>USER: {$users} JUST DISCONNECTED</b>""<br>" >> $OUTPUT
 		h=$(cat $logf | grep $port | grep "Inactivity timeout")
 		if ! [[ -z "$h" ]];then
                 	cat $logf | grep $port | grep "Inactivity timeout" >> $OUTPUT
                 	echo "</p>" >> $OUTPUT
                 	echo "<hr>" >> $OUTPUT
                 else
-                        echo "NO s'ha detectat la desconexio per varies connexions continues" >> $OUTPUT
+                        echo "TOO MANY SUCCESSFULLY CONNECTIONS - PEER NOT DISCONNECTED" >> $OUTPUT
 			echo "</p>" >> $OUTPUT
                         echo "<hr>" >> $OUTPUT
                 fi
 	done
 fi
 echo "</details>" >> $OUTPUT
-
 echo "</body>" >> $OUTPUT
 echo "</html>" >> $OUTPUT
 
 cat $OUTPUT >> $INPUT
 rm $OUTPUT
-echo "Mes $mes Dia $dian done"
+echo "LOG: Month $mes DAY $dian done"
