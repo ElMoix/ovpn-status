@@ -11,3 +11,6 @@ You have to enable cron to execute this script: \
 
 Then, you need to install Apache2 to show the HTML code. \
 Be sure to remove the default 'index.html' file.
+
+![Index](images/apache2_index.png)
+![Status](images/status.png)
