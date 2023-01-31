@@ -52,23 +52,34 @@ echo "<summary>$dateF</summary>" >> $OUTPUT
 if (( $dian > 0 && $dian < 10));then
 	cat $logf | grep "Peer Connection Initiated" | grep "$dias $mes${ds}$dian" | while IFS= read -r line;
 	do
-		port=$(echo $line | cut -d ":" -f4 | cut -d " " -f1)
+                port=$(echo $line | cut -d ":" -f4 | cut -d " " -f1)
                 users=$(echo $line | cut -d "]" -f1 | cut -d "[" -f2)
                 echo "<p>" >> $OUTPUT
                 echo "<b>USER: {$users} JUST CONNECTED</b>""<br>" >> $OUTPUT
-                cat $logf | grep $port | grep "Peer Connection Initiated" >> $OUTPUT
+                timel=$(cat $logf | grep $port | grep "Peer Connection Initiated" | cut -d "=" -f1 | sed 's/us//g')
+                echo "<a style='color:#299b26;'>TIME: </a>$timel<br>" >> $OUTPUT
+                ipl=$(cat $logf | grep $port | grep "Peer Connection Initiated" | cut -d "[" -f1 | cut -d "=" -f2 | cut -d " " -f2 | cut -d ":" -f1)
+                echo "<a style='color:#299b26;'>IP:</a>$ipl<br>" >> $OUTPUT
+                stat=$(cat $logf | grep $port | grep "Peer Connection Initiated" | cut -d "]" -f2 | cut -d "[" -f1 | sed 's/with//g')
+                echo "<a style='color:#299b26;'>STATUS:</a>$stat<br>" >> $OUTPUT
                 echo "<br>" >> $OUTPUT
                 echo "<b>USER: {$users} JUST DISCONNECTED</b>""<br>" >> $OUTPUT
                 h=$(cat $logf | grep $port | grep "Inactivity timeout")
                 if ! [[ -z "$h" ]];then
-                        cat $logf | grep $port | grep "Inactivity timeout" >> $OUTPUT
+                        timed=$(cat $logf | grep $port | grep "Inactivity timeout" | cut -d "=" -f1 | sed 's/us//g')
+                        echo "<a style='color:#299b26;'>TIME: </a>$timed<br>" >> $OUTPUT
+                        ipd=$(cat $logf | grep $port | grep "Inactivity timeout" | cut -d "[" -f1 | cut -d "=" -f2 | cut -d " " -f2 | cut -d ":" -f1)
+                        echo "<a style='color:#299b26;'>IP: </a>$ipd<br>" >> $OUTPUT
+                        statd=$(cat $logf | grep $port | grep "Inactivity timeout" | cut -d "]" -f2 | cut -d "[" -f1 | sed 's/with//g')
+                        echo "<a style='color:#299b26;'>STATUS: </a>$statd<br>" >> $OUTPUT
                         echo "</p>" >> $OUTPUT
                         echo "<hr>" >> $OUTPUT
                 else
                         echo "TOO MANY SUCCESSFULLY CONNECTIONS - PEER NOT DISCONNECTED" >> $OUTPUT
-			echo "</p>" >> $OUTPUT
+                        echo "</p>" >> $OUTPUT
                         echo "<hr>" >> $OUTPUT
                 fi
+
 	done
 else
 	cat $logf | grep "Peer Connection Initiated" | grep "$dias $mes $dian" | while IFS= read -r line;
@@ -77,7 +88,6 @@ else
                 users=$(echo $line | cut -d "]" -f1 | cut -d "[" -f2)
 		echo "<p>" >> $OUTPUT
                 echo "<b>USER: {$users} JUST CONNECTED</b>""<br>" >> $OUTPUT
-                #cat $logf | grep $port | grep "Peer Connection Initiated" >> $OUTPUT
 		timel=$(cat $logf | grep $port | grep "Peer Connection Initiated" | cut -d "=" -f1 | sed 's/us//g')
 		echo "<a style='color:#299b26;'>TIME: </a>$timel<br>" >> $OUTPUT
 		ipl=$(cat $logf | grep $port | grep "Peer Connection Initiated" | cut -d "[" -f1 | cut -d "=" -f2 | cut -d " " -f2 | cut -d ":" -f1)
@@ -88,7 +98,6 @@ else
                 echo "<b>USER: {$users} JUST DISCONNECTED</b>""<br>" >> $OUTPUT
 		h=$(cat $logf | grep $port | grep "Inactivity timeout")
 		if ! [[ -z "$h" ]];then
-                	#cat $logf | grep $port | grep "Inactivity timeout" >> $OUTPUT
 			timed=$(cat $logf | grep $port | grep "Inactivity timeout" | cut -d "=" -f1 | sed 's/us//g')
 	                echo "<a style='color:#299b26;'>TIME: </a>$timed<br>" >> $OUTPUT
 			ipd=$(cat $logf | grep $port | grep "Inactivity timeout" | cut -d "[" -f1 | cut -d "=" -f2 | cut -d " " -f2 | cut -d ":" -f1)
