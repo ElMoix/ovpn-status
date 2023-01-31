@@ -1,9 +1,12 @@
 # OVPN STATUS
 
-Ovpn server file at least have to have this line: \
-log-append /var/log/openvpn/openvpn.log \
-Make sure to comment: \
-;log /var/log/openvpn/openvpn.log
+Ovpn server file must have this line:
+
+	log-append /var/log/openvpn/openvpn.log
+
+Make sure to comment:
+
+	;log /var/log/openvpn/openvpn.log
 
 You have to enable cron to execute this script: \
 45 23 * * *	/root/monitorvpn.sh \
