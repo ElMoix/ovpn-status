@@ -13,6 +13,8 @@ dateF=$(date +%d-%m-%Y)
 OUTPUT=/tmp/$mes$any.html
 INPUT=/var/www/html/$mes$any.html
 
+vcheck=$(openvpn --version | head -n 1)
+
 # Check if file exists
 if ! [ -f $INPUT ]; then
 	touch $OUTPUT
@@ -20,10 +22,21 @@ if ! [ -f $INPUT ]; then
 	echo "<head>" >> $OUTPUT
 	echo "<style>" >> $OUTPUT
 	echo "h1 {text-align: center;}" >> $OUTPUT
+        echo "h3 {text-align: center;}" >> $OUTPUT
+	echo ".stt {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  width: 4rem;
+  text-align: center;
+  height: 2rem;
+  background: rgb(178, 151, 222);}" >> $OUTPUT
 	echo "</style>" >> $OUTPUT
 	echo "</head>" >> $OUTPUT
 	echo "<body>" >> $OUTPUT
-	echo "<h1>OPENVPN DETAILS</h1>" >> $OUTPUT
+	echo "<h1 style='border: 4px solid Tomato;'>OPENVPN DETAILS</h1>" >> $OUTPUT
+	echo "<h3 style='border: 4px solid Tomato;'>$vcheck</h3>" >> $OUTPUT
+	echo "<br>" >> $OUTPUT
 	echo "</body>" >> $OUTPUT
         echo "</html>" >> $OUTPUT
 fi
@@ -32,6 +45,7 @@ echo "<html>" >> $OUTPUT
 echo "<head>" >> $OUTPUT
 echo "</head>" >> $OUTPUT
 echo "<body>" >> $OUTPUT
+echo "<a href='#' class='stt' title='top'>TOP</a>" >> $OUTPUT
 echo "<details>" >> $OUTPUT
 echo "<summary>$dateF</summary>" >> $OUTPUT
 
@@ -63,12 +77,24 @@ else
                 users=$(echo $line | cut -d "]" -f1 | cut -d "[" -f2)
 		echo "<p>" >> $OUTPUT
                 echo "<b>USER: {$users} JUST CONNECTED</b>""<br>" >> $OUTPUT
-                cat $logf | grep $port | grep "Peer Connection Initiated" >> $OUTPUT
+                #cat $logf | grep $port | grep "Peer Connection Initiated" >> $OUTPUT
+		timel=$(cat $logf | grep $port | grep "Peer Connection Initiated" | cut -d "=" -f1 | sed 's/us//g')
+		echo "<a style='color:#299b26;'>TIME: </a>$timel<br>" >> $OUTPUT
+		ipl=$(cat $logf | grep $port | grep "Peer Connection Initiated" | cut -d "[" -f1 | cut -d "=" -f2 | cut -d " " -f2 | cut -d ":" -f1)
+		echo "<a style='color:#299b26;'>IP:</a>$ipl<br>" >> $OUTPUT
+		stat=$(cat $logf | grep $port | grep "Peer Connection Initiated" | cut -d "]" -f2 | cut -d "[" -f1 | sed 's/with//g')
+		echo "<a style='color:#299b26;'>STATUS:</a>$stat<br>" >> $OUTPUT
                 echo "<br>" >> $OUTPUT
                 echo "<b>USER: {$users} JUST DISCONNECTED</b>""<br>" >> $OUTPUT
 		h=$(cat $logf | grep $port | grep "Inactivity timeout")
 		if ! [[ -z "$h" ]];then
-                	cat $logf | grep $port | grep "Inactivity timeout" >> $OUTPUT
+                	#cat $logf | grep $port | grep "Inactivity timeout" >> $OUTPUT
+			timed=$(cat $logf | grep $port | grep "Inactivity timeout" | cut -d "=" -f1 | sed 's/us//g')
+	                echo "<a style='color:#299b26;'>TIME: </a>$timed<br>" >> $OUTPUT
+			ipd=$(cat $logf | grep $port | grep "Inactivity timeout" | cut -d "[" -f1 | cut -d "=" -f2 | cut -d " " -f2 | cut -d ":" -f1)
+	                echo "<a style='color:#299b26;'>IP: </a>$ipd<br>" >> $OUTPUT
+        	        statd=$(cat $logf | grep $port | grep "Inactivity timeout" | cut -d "]" -f2 | cut -d "[" -f1 | sed 's/with//g')
+                	echo "<a style='color:#299b26;'>STATUS: </a>$statd<br>" >> $OUTPUT
                 	echo "</p>" >> $OUTPUT
                 	echo "<hr>" >> $OUTPUT
                 else
@@ -85,3 +111,4 @@ echo "</html>" >> $OUTPUT
 cat $OUTPUT >> $INPUT
 rm $OUTPUT
 echo "LOG: Month $mes DAY $dian done"
+
