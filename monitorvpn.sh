@@ -3,7 +3,8 @@
 logf=/var/log/openvpn/openvpn.log
 
 dias=$(date | cut -d " " -f1) # Monday
-dian=$(date | cut -d " " -f2) # 1
+dian=$(date | cut -d " " -f2) # 10-31
+dians=$(date | cut -d " " -f2 | sed s/0//g) # 0-9
 mes=$(date | cut -d " " -f3)  # January
 any=$(date | cut -d " " -f4)  # 2023
 ds='  '                       # DoubleSpace
@@ -50,7 +51,7 @@ echo "<details>" >> $OUTPUT
 echo "<summary>$dateF</summary>" >> $OUTPUT
 
 if (( $dian > 0 && $dian < 10));then
-	cat $logf | grep "Peer Connection Initiated" | grep "$dias $mes${ds}$dian" | while IFS= read -r line;
+	cat $logf | grep "Peer Connection Initiated" | grep "$dias $mes${ds}$dians" | while IFS= read -r line;
 	do
                 port=$(echo $line | cut -d ":" -f4 | cut -d " " -f1)
                 users=$(echo $line | cut -d "]" -f1 | cut -d "[" -f2)
@@ -64,7 +65,7 @@ if (( $dian > 0 && $dian < 10));then
                 echo "<a style='color:#299b26;'>STATUS:</a>$stat<br>" >> $OUTPUT
                 echo "<br>" >> $OUTPUT
                 echo "<b>USER: {$users} JUST DISCONNECTED</b>""<br>" >> $OUTPUT
-                h=$(cat $logf | grep $port | grep "Inactivity timeout")
+                h=$(cat $logf | grep $port | grep $mes | grep "Inactivity timeout")
                 if ! [[ -z "$h" ]];then
                         timed=$(cat $logf | grep $port | grep "Inactivity timeout" | cut -d "=" -f1 | sed 's/us//g')
                         echo "<a style='color:#299b26;'>TIME: </a>$timed<br>" >> $OUTPUT
@@ -96,7 +97,7 @@ else
 		echo "<a style='color:#299b26;'>STATUS:</a>$stat<br>" >> $OUTPUT
                 echo "<br>" >> $OUTPUT
                 echo "<b>USER: {$users} JUST DISCONNECTED</b>""<br>" >> $OUTPUT
-		h=$(cat $logf | grep $port | grep "Inactivity timeout")
+		h=$(cat $logf | grep $port | grep $mes | grep "Inactivity timeout")
 		if ! [[ -z "$h" ]];then
 			timed=$(cat $logf | grep $port | grep "Inactivity timeout" | cut -d "=" -f1 | sed 's/us//g')
 	                echo "<a style='color:#299b26;'>TIME: </a>$timed<br>" >> $OUTPUT
